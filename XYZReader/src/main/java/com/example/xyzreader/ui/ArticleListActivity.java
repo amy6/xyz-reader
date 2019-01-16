@@ -192,9 +192,6 @@ public class ArticleListActivity extends AppCompatActivity implements
                                 + mCursor.getString(ArticleLoader.Query.AUTHOR)));
             }
             final String imageUrl = mCursor.getString(ArticleLoader.Query.THUMB_URL);
-            holder.thumbnailView.setImageUrl(imageUrl,
-                    ImageLoaderHelper.getInstance(ArticleListActivity.this).getImageLoader());
-            holder.thumbnailView.setAspectRatio(mCursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
             new AsyncTask<Void, Void, Bitmap>() {
 
                 @Override
@@ -208,6 +205,9 @@ public class ArticleListActivity extends AppCompatActivity implements
 
                 @Override
                 protected void onPostExecute(Bitmap bitmap) {
+                    holder.thumbnailView.setImageUrl(imageUrl,
+                            ImageLoaderHelper.getInstance(ArticleListActivity.this).getImageLoader());
+                    holder.thumbnailView.setAspectRatio(mCursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
                     Palette palette = Palette.from(bitmap).generate();
                     Palette.Swatch vibrant = palette.getMutedSwatch();
                     if (vibrant != null) {
