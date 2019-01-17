@@ -8,9 +8,9 @@ import android.content.IntentFilter;
 import android.content.Loader;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.os.AsyncTask;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
@@ -29,11 +29,9 @@ import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
 import com.example.xyzreader.data.ItemsContract;
 import com.example.xyzreader.data.UpdaterService;
+import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Target;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -192,50 +190,43 @@ public class ArticleListActivity extends AppCompatActivity implements
                                 + mCursor.getString(ArticleLoader.Query.AUTHOR)));
             }
             final String imageUrl = mCursor.getString(ArticleLoader.Query.THUMB_URL);
-            new AsyncTask<Void, Void, Bitmap>() {
-
+            holder.thumbnailView.setImageUrl(imageUrl, ImageLoaderHelper.getInstance(ArticleListActivity.this).getImageLoader());
+            holder.thumbnailView.setAspectRatio(mCursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
+            Log.d(ArticleListActivity.class.getSimpleName(), "URL : " + imageUrl);
+            Picasso.get().load(imageUrl).into(new Target() {
                 @Override
-                protected Bitmap doInBackground(Void... voids) {
-                    Bitmap bitmap = getBitmapFromURL(imageUrl);
-                    if (bitmap != null) {
-                        return bitmap;
-                    }
-                    return null;
+                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                    Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
+                        @Override
+                        public void onGenerated(@Nullable Palette palette) {
+                            Palette.Swatch vibrant;
+                            if (palette != null) {
+                                vibrant = palette.getMutedSwatch();
+                                if (vibrant != null) {
+                                    holder.titleLayout.setBackgroundColor(vibrant.getRgb());
+                                    holder.titleView.setTextColor(vibrant.getTitleTextColor());
+                                    holder.subtitleView.setTextColor(vibrant.getBodyTextColor());
+                                }
+                            }
+                        }
+                    });
                 }
 
                 @Override
-                protected void onPostExecute(Bitmap bitmap) {
-                    holder.thumbnailView.setImageUrl(imageUrl,
-                            ImageLoaderHelper.getInstance(ArticleListActivity.this).getImageLoader());
-                    holder.thumbnailView.setAspectRatio(mCursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
-                    Palette palette = Palette.from(bitmap).generate();
-                    Palette.Swatch vibrant = palette.getMutedSwatch();
-                    if (vibrant != null) {
-                        holder.titleLayout.setBackgroundColor(vibrant.getRgb());
-                        holder.titleView.setTextColor(vibrant.getTitleTextColor());
-                        holder.subtitleView.setTextColor(vibrant.getBodyTextColor());
-                    }
+                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+
                 }
-            }.execute();
+
+                @Override
+                public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                }
+            });
         }
 
         @Override
         public int getItemCount() {
             return mCursor.getCount();
-        }
-    }
-
-    private Bitmap getBitmapFromURL(String src) {
-        try {
-            URL url = new URL(src);
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setDoInput(true);
-            connection.connect();
-            InputStream input = connection.getInputStream();
-            return BitmapFactory.decodeStream(input);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
         }
     }
 
