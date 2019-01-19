@@ -192,7 +192,6 @@ public class ArticleListActivity extends AppCompatActivity implements
             final String imageUrl = mCursor.getString(ArticleLoader.Query.THUMB_URL);
             holder.thumbnailView.setImageUrl(imageUrl, ImageLoaderHelper.getInstance(ArticleListActivity.this).getImageLoader());
             holder.thumbnailView.setAspectRatio(mCursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
-            Log.d(ArticleListActivity.class.getSimpleName(), "URL : " + imageUrl);
             Picasso.get().load(imageUrl).into(new Target() {
                 @Override
                 public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
