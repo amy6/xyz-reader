@@ -9,13 +9,17 @@ import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.ShareCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -32,8 +36,11 @@ import com.example.xyzreader.data.ArticleLoader;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 /**
  * A fragment representing a single Article detail screen. This fragment is
@@ -63,6 +70,7 @@ public class ArticleDetailFragment extends Fragment implements
     // Most time functions can only handle 1902 - 2037
     private GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2, 1, 1);
     private Toolbar mToolbar;
+    private List<String> stringArrayList;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -153,11 +161,14 @@ public class ArticleDetailFragment extends Fragment implements
         TextView titleView = (TextView) mRootView.findViewById(R.id.article_title);
         TextView bylineView = (TextView) mRootView.findViewById(R.id.article_byline);
         bylineView.setMovementMethod(new LinkMovementMethod());
-        TextView bodyView = (TextView) mRootView.findViewById(R.id.article_body);
+
         AppBarLayout appBarLayout = mRootView.findViewById(R.id.app_bar_layout);
         final CollapsingToolbarLayout collapsingToolbarLayout = mRootView.findViewById(R.id.collapsing_toolbar);
 
-        bodyView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
+        RecyclerView recyclerView = mRootView.findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setItemViewCacheSize(20);
 
         if (mCursor != null) {
             mRootView.setAlpha(0);
@@ -200,7 +211,11 @@ public class ArticleDetailFragment extends Fragment implements
                                 + "</font>"));
 
             }
-            bodyView.setText(Html.fromHtml(mCursor.getString(ArticleLoader.Query.BODY).replaceAll("(\r\n|\n)", "<br />")));
+            String body = mCursor.getString(ArticleLoader.Query.BODY);
+            Log.i(TAG, "Article length: " + body.length());
+            String regex = body.contains("<br><br>") ? "<br><br>" : "\\r?\\n";
+            stringArrayList = Arrays.asList(body.split(regex, 500));
+            recyclerView.setAdapter(new LargeTextRecyclerViewAdapter());
             ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
                     .get(mCursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
                         @Override
@@ -224,7 +239,6 @@ public class ArticleDetailFragment extends Fragment implements
             mRootView.setVisibility(View.GONE);
             titleView.setText("N/A");
             bylineView.setText("N/A");
-            bodyView.setText("N/A");
         }
     }
 
@@ -256,5 +270,40 @@ public class ArticleDetailFragment extends Fragment implements
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
         mCursor = null;
         bindViews();
+    }
+
+    private class LargeTextRecyclerViewAdapter extends RecyclerView.Adapter<LargeTextRecyclerViewAdapter.LargeTextViewHolder> {
+
+
+        @NonNull
+        @Override
+        public LargeTextViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            return new LargeTextViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_text, parent, false));
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull LargeTextViewHolder holder, int position) {
+            Log.i(TAG, "String at " + position + " is : " + stringArrayList.get(position).trim());
+            holder.textView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
+            if (stringArrayList.get(position).length() > 0 && !TextUtils.isEmpty(stringArrayList.get(position))) {
+                holder.textView.setText(stringArrayList.get(position));
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return stringArrayList != null ? stringArrayList.size() : 0;
+        }
+
+        private class LargeTextViewHolder extends RecyclerView.ViewHolder {
+
+            TextView textView;
+
+            public LargeTextViewHolder(View itemView) {
+                super(itemView);
+                textView = itemView.findViewById(R.id.text);
+            }
+        }
+
     }
 }

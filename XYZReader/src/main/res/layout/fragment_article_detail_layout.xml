@@ -24,7 +24,7 @@
                 <ImageView
                     android:id="@+id/photo"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="@dimen/detail_photo_height"
                     android:scaleType="centerCrop"
                     app:layout_collapseMode="parallax"
                     android:fitsSystemWindows="true"
@@ -44,22 +44,15 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <android.support.v4.widget.NestedScrollView
-        android:id="@+id/scrollview"
+    <com.example.xyzreader.ui.MaxWidthLinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:fillViewport="true"
+        android:layout_gravity="center_horizontal"
+        android:background="#fff"
+        android:elevation="2dp"
+        android:maxWidth="@dimen/detail_card_max_width"
+        android:orientation="vertical"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-            <com.example.xyzreader.ui.MaxWidthLinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_horizontal"
-                android:background="#fff"
-                android:elevation="2dp"
-                android:maxWidth="@dimen/detail_card_max_width"
-                android:orientation="vertical">
 
                 <LinearLayout
                     android:id="@+id/meta_bar"
@@ -96,23 +89,16 @@
                         tools:text="Article Byline"/>
                 </LinearLayout>
 
-                <TextView
-                    android:id="@+id/article_body"
-                    style="?android:attr/textAppearanceMedium"
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/recycler_view"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="@dimen/detail_inner_horiz_margin"
                     android:layout_marginRight="@dimen/detail_inner_horiz_margin"
-                    android:lineSpacingMultiplier="@fraction/detail_body_line_spacing_multiplier"
                     android:paddingBottom="@dimen/detail_body_bottom_margin"
-                    android:textColor="@android:color/black"
-                    android:textColorLink="@color/theme_accent"
-                    android:textSize="@dimen/detail_body_text_size"
-                    tools:text="Article body" />
+                    tools:listitem="@layout/list_item_text"/>
 
             </com.example.xyzreader.ui.MaxWidthLinearLayout>
-
-    </android.support.v4.widget.NestedScrollView>
 
     <ImageButton
         android:id="@+id/share_fab"
