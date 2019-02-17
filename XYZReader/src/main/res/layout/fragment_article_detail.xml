@@ -68,6 +68,7 @@
         android:src="@drawable/ic_share"
         app:layout_anchor="@id/nested_scroll_view"
         app:layout_anchorGravity="bottom|end"
+        android:visibility="invisible"
         app:fabSize="normal" />
 
 </android.support.design.widget.CoordinatorLayout>

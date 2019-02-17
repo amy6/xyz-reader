@@ -222,7 +222,6 @@ public class ArticleDetailFragment extends Fragment implements
 
             }
             String body = mCursor.getString(ArticleLoader.Query.BODY);
-            Log.i(TAG, "Article length: " + body.length());
             String regex = body.contains("<br><br>") ? "<br><br>" : "\\r?\\n";
             stringArrayList = Arrays.asList(body.split(regex, 20));
             recyclerView.setAdapter(new LargeTextRecyclerViewAdapter());
@@ -294,10 +293,10 @@ public class ArticleDetailFragment extends Fragment implements
 
         @Override
         public void onBindViewHolder(@NonNull LargeTextViewHolder holder, int position) {
-            Log.i(TAG, "String at " + position + " is : " + stringArrayList.get(position).trim());
             holder.textView.setTypeface(Typeface.createFromAsset(getResources().getAssets(), "Rosario-Regular.ttf"));
             if (stringArrayList.get(position).length() > 0 && !TextUtils.isEmpty(stringArrayList.get(position))) {
-                holder.textView.setText(stringArrayList.get(position));
+                holder.textView.setText(Html.fromHtml(stringArrayList.get(position)));
+                fab.show();
             }
         }
 
