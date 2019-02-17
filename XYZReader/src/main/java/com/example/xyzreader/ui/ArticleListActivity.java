@@ -6,10 +6,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -25,12 +23,12 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageLoader;
 import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
 import com.example.xyzreader.data.ItemsContract;
 import com.example.xyzreader.data.UpdaterService;
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -196,14 +194,14 @@ public class ArticleListActivity extends AppCompatActivity implements
             final String imageUrl = mCursor.getString(ArticleLoader.Query.THUMB_URL);
             holder.thumbnailView.setImageUrl(imageUrl, ImageLoaderHelper.getInstance(ArticleListActivity.this).getImageLoader());
             holder.thumbnailView.setAspectRatio(mCursor.getFloat(ArticleLoader.Query.ASPECT_RATIO));
-            Picasso.get().load(imageUrl).into(new Target() {
-                @Override
-                public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                    Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
+            ImageLoaderHelper.getInstance(ArticleListActivity.this).getImageLoader().get(mCursor.getString(ArticleLoader.Query.THUMB_URL),
+                    new ImageLoader.ImageListener() {
                         @Override
-                        public void onGenerated(@Nullable Palette palette) {
-                            Palette.Swatch vibrant;
-                            if (palette != null) {
+                        public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
+                            Bitmap bitmap = imageContainer.getBitmap();
+                            if (bitmap != null) {
+                                Palette palette = new Palette.Builder(bitmap).generate();
+                                Palette.Swatch vibrant;
                                 vibrant = palette.getMutedSwatch();
                                 if (vibrant != null) {
                                     holder.titleLayout.setBackgroundColor(vibrant.getRgb());
@@ -212,19 +210,12 @@ public class ArticleListActivity extends AppCompatActivity implements
                                 }
                             }
                         }
+
+                        @Override
+                        public void onErrorResponse(VolleyError volleyError) {
+
+                        }
                     });
-                }
-
-                @Override
-                public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-
-                }
-
-                @Override
-                public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-                }
-            });
         }
 
         @Override

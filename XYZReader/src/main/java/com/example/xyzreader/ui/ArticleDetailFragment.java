@@ -207,7 +207,7 @@ public class ArticleDetailFragment extends Fragment implements
             String body = mCursor.getString(ArticleLoader.Query.BODY);
             Log.i(TAG, "Article length: " + body.length());
             String regex = body.contains("<br><br>") ? "<br><br>" : "\\r?\\n";
-            stringArrayList = Arrays.asList(body.split(regex, 500));
+            stringArrayList = Arrays.asList(body.split(regex, 20));
             recyclerView.setAdapter(new LargeTextRecyclerViewAdapter());
             ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
                     .get(mCursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
