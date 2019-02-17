@@ -112,11 +112,11 @@ public class ArticleDetailFragment extends Fragment implements
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.fragment_article_detail, container, false);
-        Toolbar mToolbar = mRootView.findViewById(R.id.toolbar);
+        Toolbar toolbar = mRootView.findViewById(R.id.toolbar);
 
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         if (activity != null) {
-            activity.setSupportActionBar(mToolbar);
+            activity.setSupportActionBar(toolbar);
             if (activity.getSupportActionBar() != null) {
                 activity.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             }

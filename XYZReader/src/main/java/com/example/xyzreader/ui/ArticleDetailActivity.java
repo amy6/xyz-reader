@@ -10,7 +10,10 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
+import android.support.v4.view.OnApplyWindowInsetsListener;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v4.view.WindowInsetsCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.View;
@@ -49,6 +52,27 @@ public class ArticleDetailActivity extends AppCompatActivity
         mPager.setPageMargin((int) TypedValue
                 .applyDimension(TypedValue.COMPLEX_UNIT_DIP, 1, getResources().getDisplayMetrics()));
         mPager.setPageMarginDrawable(new ColorDrawable(0x22000000));
+
+        ViewCompat.setOnApplyWindowInsetsListener(mPager,
+                new OnApplyWindowInsetsListener() {
+                    @Override
+                    public WindowInsetsCompat onApplyWindowInsets(View v,
+                                                                  WindowInsetsCompat insets) {
+                        insets = ViewCompat.onApplyWindowInsets(v, insets);
+                        if (insets.isConsumed()) {
+                            return insets;
+                        }
+
+                        boolean consumed = false;
+                        for (int i = 0, count = mPager.getChildCount(); i <  count; i++) {
+                            ViewCompat.dispatchApplyWindowInsets(mPager.getChildAt(i), insets);
+                            if (insets.isConsumed()) {
+                                consumed = true;
+                            }
+                        }
+                        return consumed ? insets.consumeSystemWindowInsets() : insets;
+                    }
+                });
 
         if (savedInstanceState == null) {
             if (getIntent() != null && getIntent().getData() != null) {
