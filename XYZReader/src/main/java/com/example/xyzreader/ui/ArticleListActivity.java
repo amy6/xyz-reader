@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.PorterDuff;
@@ -22,7 +23,7 @@ import android.text.Html;
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -52,6 +53,9 @@ public class ArticleListActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = ArticleListActivity.class.toString();
+    public static final String SHARED_PREF_THEME = "SHARED_PREF_THEME_KEY";
+    public static final String SHARED_PREF_FILE = "xyz-reader";
+
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private RecyclerView mRecyclerView;
 
@@ -61,8 +65,19 @@ public class ArticleListActivity extends AppCompatActivity implements
     // Most time functions can only handle 1902 - 2037
     private GregorianCalendar START_OF_EPOCH = new GregorianCalendar(2, 1, 1);
 
+    private SharedPreferences mSharedPreferences;
+
+    private boolean mTheme;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mSharedPreferences = getSharedPreferences(SHARED_PREF_FILE, MODE_PRIVATE);
+        mTheme = mSharedPreferences.getBoolean(SHARED_PREF_THEME, false);
+        if (mTheme) {
+            setTheme(R.style.Theme_Beagle);
+        } else {
+            setTheme(R.style.Theme_Bacon);
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_list);
 
@@ -91,16 +106,46 @@ public class ArticleListActivity extends AppCompatActivity implements
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
-
-        for(int i = 0; i < menu.size(); i++){
-            Drawable drawable = menu.getItem(i).getIcon();
-            if(drawable != null) {
-                drawable.mutate();
-                drawable.setColorFilter(getResources().getColor(android.R.color.darker_gray), PorterDuff.Mode.SRC_ATOP);
-            }
+        MenuItem item = menu.findItem(R.id.theme);
+        if (mTheme) {
+            item.setIcon(getResources().getDrawable(R.drawable.ic_night));
+        } else {
+            item.setIcon(getResources().getDrawable(R.drawable.ic_day));
         }
-
+        updateMenuDrawable(item);
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.theme:
+                if (mTheme) {
+                    item.setIcon(getResources().getDrawable(R.drawable.ic_day));
+                } else {
+                    item.setIcon(getResources().getDrawable(R.drawable.ic_night));
+                }
+                mTheme = !mTheme;
+                mSharedPreferences.edit().putBoolean(SHARED_PREF_THEME, mTheme).apply();
+                updateMenuDrawable(item);
+                recreate();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void updateMenuDrawable(MenuItem item) {
+        Drawable drawable = item.getIcon();
+        int color;
+        if (drawable != null) {
+            drawable.mutate();
+            if (mTheme) {
+                color = android.R.color.white;
+            } else {
+                color = android.R.color.darker_gray;
+            }
+            drawable.setColorFilter(getResources().getColor(color), PorterDuff.Mode.SRC_ATOP);
+        }
     }
 
     private void refresh() {

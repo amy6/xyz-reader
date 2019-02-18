@@ -22,6 +22,9 @@ import com.example.xyzreader.R;
 import com.example.xyzreader.data.ArticleLoader;
 import com.example.xyzreader.data.ItemsContract;
 
+import static com.example.xyzreader.ui.ArticleListActivity.SHARED_PREF_FILE;
+import static com.example.xyzreader.ui.ArticleListActivity.SHARED_PREF_THEME;
+
 /**
  * An activity representing a single Article detail screen, letting you swipe between articles.
  */
@@ -36,6 +39,11 @@ public class ArticleDetailActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        if (getSharedPreferences(SHARED_PREF_FILE, MODE_PRIVATE).getBoolean(SHARED_PREF_THEME, false)) {
+            setTheme(R.style.Theme_Beagle_Detail);
+        } else {
+            setTheme(R.style.Theme_Bacon_Detail);
+        }
         super.onCreate(savedInstanceState);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             getWindow().getDecorView().setSystemUiVisibility(
