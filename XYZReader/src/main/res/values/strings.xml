@@ -5,5 +5,6 @@
     <string name="action_share">Share</string>
 
     <string name="no_description_available">No description available</string>
+    <string name="settings_theme">Switch theme</string>
 
 </resources>
