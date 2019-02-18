@@ -81,7 +81,7 @@ public class ArticleListActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_list);
 
-        Toolbar toolbar = findViewById(R.id.toolbar);
+        final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle("");
@@ -136,15 +136,9 @@ public class ArticleListActivity extends AppCompatActivity implements
 
     private void updateMenuDrawable(MenuItem item) {
         Drawable drawable = item.getIcon();
-        int color;
         if (drawable != null) {
             drawable.mutate();
-            if (mTheme) {
-                color = android.R.color.white;
-            } else {
-                color = android.R.color.darker_gray;
-            }
-            drawable.setColorFilter(getResources().getColor(color), PorterDuff.Mode.SRC_ATOP);
+            drawable.setColorFilter(getResources().getColor(android.R.color.white), PorterDuff.Mode.SRC_ATOP);
         }
     }
 
