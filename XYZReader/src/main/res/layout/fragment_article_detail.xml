@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="320dp"
         android:fitsSystemWindows="true"
+        android:translationZ="12dp"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
         <android.support.design.widget.CollapsingToolbarLayout
@@ -69,6 +70,8 @@
         android:src="@drawable/ic_share"
         app:layout_anchor="@id/nested_scroll_view"
         app:layout_anchorGravity="bottom|end"
+        app:elevation="6dp"
+        android:translationZ="12dp"
         android:visibility="invisible"
         app:fabSize="normal" />
 
